@@ -1,0 +1,21 @@
+{
+  "name": "@sqr/core",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "sst bind 'vitest'",
+    "typecheck": "tsc -noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^18.13.0",
+    "sst": "^2.0.1",
+    "vitest": "^0.28.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.266.1",
+    "aws-sdk": "^2.1310.0",
+    "electrodb": "^2.4.1",
+    "spotify-api.js": "^9.2.5",
+    "sst": "^2.0.1"
+  }
+}
