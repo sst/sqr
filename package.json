@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "sso": "aws sso login --profile=ironbay-dev",
     "dev": "sst dev",
     "build": "sst build",
     "deploy": "sst deploy",

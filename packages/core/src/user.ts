@@ -24,6 +24,7 @@ const UserEntity = new Entity(
       },
       accessToken: {
         type: "string",
+        required: true,
       },
     },
     indexes: {
@@ -53,20 +54,27 @@ const UserEntity = new Entity(
   Dynamo.Service
 );
 
-import Spotify from "spotify-api.js";
-import { Config } from "sst/node/config";
 import crypto from "crypto";
+import { Bus } from "./bus";
+import { Spotify } from "./spotify";
 
-export async function fromToken(input: { access: string; refresh: string }) {
-  const client = await Spotify.Client.create({
-    token: {
-      token: input.access,
-      refreshToken: input.refresh,
-      clientID: Config.SPOTIFY_CLIENT_ID,
-      clientSecret: Config.SPOTIFY_CLIENT_SECRET,
-    },
-    userAuthorizedToken: true,
-  });
+declare module "./bus" {
+  export interface Events {
+    "user.login": {
+      userID: string;
+    };
+  }
+}
+
+export async function fromID(userID: string) {
+  const result = await UserEntity.get({
+    userID,
+  }).go();
+  return result.data;
+}
+
+export async function login(input: Spotify.Credentials) {
+  const client = await Spotify.client(input);
 
   const existing = await UserEntity.query
     .bySpotifyID({
@@ -80,10 +88,13 @@ export async function fromToken(input: { access: string; refresh: string }) {
       refreshToken: input.refresh,
       accessToken: input.access,
     }).go();
+    await Bus.publish("user.login", {
+      userID: user.data.userID,
+    });
     return user.data;
   }
 
-  return UserEntity.update({
+  const result = await UserEntity.update({
     userID: existing.data[0].userID,
   })
     .set({
@@ -93,4 +104,9 @@ export async function fromToken(input: { access: string; refresh: string }) {
     .go({
       response: "all_new",
     });
+  await Bus.publish("user.login", {
+    userID: result.data!.userID!,
+  });
+
+  return result.data!;
 }

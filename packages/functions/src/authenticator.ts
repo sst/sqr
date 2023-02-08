@@ -8,19 +8,18 @@ export const handler = AuthHandler({
     spotify: OauthAdapter({
       clientID: Config.SPOTIFY_CLIENT_ID,
       clientSecret: Config.SPOTIFY_CLIENT_SECRET,
-      scope: "playlist-read-private user-read-email",
+      scope:
+        "playlist-read-private user-read-email user-library-read playlist-modify-private",
       issuer: new Issuer({
         issuer: "https://accounts.spotify.com",
         authorization_endpoint: "https://accounts.spotify.com/authorize",
         token_endpoint: "https://accounts.spotify.com/api/token",
       }),
       onSuccess: async (tokenset) => {
-        console.log(
-          await User.fromToken({
-            access: tokenset.access_token!,
-            refresh: tokenset.refresh_token!,
-          })
-        );
+        await User.login({
+          access: tokenset.access_token!,
+          refresh: tokenset.refresh_token!,
+        });
         return {
           statusCode: 200,
           body: JSON.stringify(tokenset),

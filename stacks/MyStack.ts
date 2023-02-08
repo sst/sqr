@@ -1,4 +1,11 @@
-import { StackContext, Api, Auth, Table } from "sst/constructs";
+import {
+  StackContext,
+  Api,
+  Auth,
+  Table,
+  EventBus,
+  Queue,
+} from "sst/constructs";
 import { Config } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
@@ -33,6 +40,31 @@ export function API({ stack }: StackContext) {
     },
   });
 
+  const bus = new EventBus(stack, "bus");
+
+  bus.addRules(stack, {
+    "user.login": {
+      pattern: {
+        detailType: ["user.login"],
+      },
+      targets: {
+        queue: new Queue(stack, "user-created-queue", {
+          consumer: {
+            function: {
+              handler: "packages/functions/src/events/user.login",
+              timeout: "15 minutes",
+              bind: [
+                table,
+                secrets.SPOTIFY_CLIENT_SECRET,
+                secrets.SPOTIFY_CLIENT_ID,
+              ],
+            },
+          },
+        }),
+      },
+    },
+  });
+
   const auth = new Auth(stack, "auth", {
     authenticator: "packages/functions/src/authenticator.handler",
   });
@@ -40,7 +72,7 @@ export function API({ stack }: StackContext) {
   const api = new Api(stack, "api", {
     defaults: {
       function: {
-        bind: [table, ...Object.values(secrets)],
+        bind: [bus, table, ...Object.values(secrets)],
       },
     },
     routes: {
@@ -54,5 +86,6 @@ export function API({ stack }: StackContext) {
 
   stack.addOutputs({
     ApiEndpoint: api.url,
+    Bus: bus.eventBusArn,
   });
 }

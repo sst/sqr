@@ -7,12 +7,15 @@
     "typecheck": "tsc -noEmit"
   },
   "devDependencies": {
+    "@aws-sdk/types": "^3.0.0",
     "@types/node": "^18.13.0",
     "sst": "^2.0.1",
     "vitest": "^0.28.4"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.266.1",
+    "@aws-sdk/client-eventbridge": "^3.267.0",
+    "@aws-sdk/smithy-client": "^3.0.0",
     "aws-sdk": "^2.1310.0",
     "electrodb": "^2.4.1",
     "spotify-api.js": "^9.2.5",
