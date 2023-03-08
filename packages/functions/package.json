@@ -9,10 +9,10 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.110",
     "@types/node": "^18.13.0",
-    "sst": "^2.0.1"
+    "sst": "2.1.17"
   },
   "dependencies": {
     "openid-client": "^5.4.0",
-    "sst": "^2.0.1"
+    "sst": "2.1.17"
   }
 }

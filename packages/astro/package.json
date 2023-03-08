@@ -1,0 +1,19 @@
+{
+  "name": "astro",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "sst bind astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "2.1.0",
+    "sst": "2.1.17"
+  },
+  "devDependencies": {
+    "astro-sst": "^2.1.17"
+  }
+}

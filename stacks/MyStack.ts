@@ -1,15 +1,16 @@
 import {
   StackContext,
   Api,
-  Auth,
   Table,
   EventBus,
   Queue,
+  toCdkDuration,
 } from "sst/constructs";
+import { Auth } from "sst/constructs/future";
 import { Config } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
-  const secrets = Config.Secret.create(
+  const spotify = Config.Secret.create(
     stack,
     "SPOTIFY_CLIENT_SECRET",
     "SPOTIFY_CLIENT_ID"
@@ -49,14 +50,19 @@ export function API({ stack }: StackContext) {
       },
       targets: {
         queue: new Queue(stack, "user-created-queue", {
+          cdk: {
+            queue: {
+              visibilityTimeout: toCdkDuration("15 minutes"),
+            },
+          },
           consumer: {
             function: {
               handler: "packages/functions/src/events/user.login",
               timeout: "15 minutes",
               bind: [
                 table,
-                secrets.SPOTIFY_CLIENT_SECRET,
-                secrets.SPOTIFY_CLIENT_ID,
+                spotify.SPOTIFY_CLIENT_SECRET,
+                spotify.SPOTIFY_CLIENT_ID,
               ],
             },
           },
@@ -66,13 +72,21 @@ export function API({ stack }: StackContext) {
   });
 
   const auth = new Auth(stack, "auth", {
-    authenticator: "packages/functions/src/authenticator.handler",
+    authenticator: {
+      handler: "packages/functions/src/authenticator.handler",
+      bind: [
+        table,
+        bus,
+        spotify.SPOTIFY_CLIENT_ID,
+        spotify.SPOTIFY_CLIENT_SECRET,
+      ],
+    },
   });
 
   const api = new Api(stack, "api", {
     defaults: {
       function: {
-        bind: [bus, table, ...Object.values(secrets)],
+        bind: [bus, table, ...Object.values(spotify)],
       },
     },
     routes: {
@@ -80,12 +94,9 @@ export function API({ stack }: StackContext) {
     },
   });
 
-  auth.attach(stack, {
-    api,
-  });
-
   stack.addOutputs({
     ApiEndpoint: api.url,
     Bus: bus.eventBusArn,
+    AuthUrl: auth.url,
   });
 }

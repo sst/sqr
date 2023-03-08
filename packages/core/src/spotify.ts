@@ -68,6 +68,7 @@ export async function* tracks(client: Spotify.Client) {
     for (const track of tracks) {
       yield track;
     }
+    console.log("fetched", tracks.length, "tracks from offset", offset);
     if (tracks.length === 0) break;
     offset += tracks.length;
   }

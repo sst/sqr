@@ -9,7 +9,7 @@
   "devDependencies": {
     "@aws-sdk/types": "^3.0.0",
     "@types/node": "^18.13.0",
-    "sst": "^2.0.1",
+    "sst": "2.1.17",
     "vitest": "^0.28.4"
   },
   "dependencies": {
@@ -19,6 +19,6 @@
     "aws-sdk": "^2.1310.0",
     "electrodb": "^2.4.1",
     "spotify-api.js": "^9.2.5",
-    "sst": "^2.0.1"
+    "sst": "2.1.17"
   }
 }
